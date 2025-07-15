@@ -1,0 +1,117 @@
+esphome:
+  name: afficheur
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+font:
+  - file: 'fonts/Verdana-Bold.ttf'
+    id: big
+    size: 12
+  - file: 'fonts/Tamzen6x12r.ttf'
+    id: mono
+    size: 12
+    glyphsets:
+      - GF_Latin_Core
+  - file: 'fonts/Tamzen6x12b.ttf'
+    id: mono_bold
+    size: 12
+    glyphsets:
+      - GF_Latin_Core
+  - file: 'fonts/Verdana.ttf'
+    id: small
+    size: 10
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+sensor:
+  - platform: homeassistant
+    id: temperature
+    entity_id: weather.escalquens
+    attribute: temperature
+
+text_sensor:
+  - platform: homeassistant
+    name: "Agenda Next"
+    entity_id: input_text.next_coderpad_calendar_event
+    id: agenda_next_event
+
+spi:
+  id: spi2
+  clk_pin: GPIO12
+  mosi_pin: GPIO11
+
+
+
+display:
+  - platform: waveshare_epaper
+    cs_pin: GPIO10
+    dc_pin: GPIO17
+    busy_pin: GPIO4
+    reset_pin: GPIO16
+    model: 2.90inv2-r2
+    rotation: 90°
+    full_update_every: 3600
+    spi_id: spi2
+    lambda: |-
+      // Max columns using mono font
+      int COLS = 48;
+
+      it.filled_rectangle(0, 0, 296, 18, COLOR_ON);
+      //Date and Time
+      it.strftime(10, 0, id(big), COLOR_OFF, TextAlign::LEFT, "%B %d, %Y %H:%M", id(homeassistant_time).now());
+
+      //Temp
+      if (isnan(id(temperature).state)) {
+        it.printf(286, 0, id(big), COLOR_OFF, TextAlign::RIGHT, "--- ");
+      } else {
+        it.printf(286, 0, id(big), COLOR_OFF, TextAlign::RIGHT, "%.1f°C", id(temperature).state);
+      }        
+
+      // Agenda
+
+      std::string next_event = std::string(id(agenda_next_event).state.c_str());
+      std::vector<std::string> lines;
+      std::string::size_type pos = 0;
+      std::string::size_type prev = 0;
+      while ((pos = next_event.find("\n", prev)) != std::string::npos)
+      {
+          lines.push_back(next_event.substr(prev, pos - prev));
+          prev = pos + 1;
+      }
+      lines.push_back(next_event.substr(prev));
+
+      int offset = 0;
+      for (const std::string& line: lines) {
+        it.printf(0, 30 + offset, id(mono), TextAlign::TOP_LEFT, "%s", line.c_str());
+        offset += 16;
+      }
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_pw
+  output_power: 8.5
+  fast_connect: true
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Afficheur Fallback Hotspot"
+    password: "xopLe2EoKuLt"
+
+captive_portal:
+    
