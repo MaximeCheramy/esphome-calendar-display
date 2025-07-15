@@ -87,14 +87,20 @@ display:
 
       std::string next_event = std::string(id(agenda_next_event).state.c_str());
       std::vector<std::string> lines;
-      std::string::size_type pos = 0;
-      std::string::size_type prev = 0;
-      while ((pos = next_event.find("\n", prev)) != std::string::npos)
-      {
-          lines.push_back(next_event.substr(prev, pos - prev));
-          prev = pos + 1;
+
+      int cursor = 0;
+      for (size_t pos = 0; pos < next_event.size(); pos++) {
+        if (cursor == COLS) {
+          lines.push_back(next_event.substr(pos - cursor, cursor + 1));
+          cursor = 0;
+        } else if (next_event[pos] == '\n') {
+          lines.push_back(next_event.substr(pos - cursor, cursor));
+          cursor = 0;
+        } else {
+          cursor++;
+        }
       }
-      lines.push_back(next_event.substr(prev));
+      lines.push_back(next_event.substr(next_event.size() - cursor));
 
       int offset = 0;
       for (const std::string& line: lines) {
