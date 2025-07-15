@@ -91,13 +91,17 @@ display:
       int cursor = 0;
       for (size_t pos = 0; pos < next_event.size(); pos++) {
         if (cursor == COLS) {
-          lines.push_back(next_event.substr(pos - cursor, cursor + 1));
+          lines.push_back(next_event.substr(pos - cursor, cursor - 2).append("..."));
           cursor = 0;
+          pos = next_event.find_first_of('\n', pos);
         } else if (next_event[pos] == '\n') {
           lines.push_back(next_event.substr(pos - cursor, cursor));
           cursor = 0;
         } else {
           cursor++;
+        }
+        if (pos == std::string::npos) {
+          break;
         }
       }
       lines.push_back(next_event.substr(next_event.size() - cursor));
