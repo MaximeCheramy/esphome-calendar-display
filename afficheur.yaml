@@ -35,6 +35,11 @@ font:
     id: small
     size: 10
 
+switch:
+  - platform: gpio
+    pin: GPIO03
+    name: "LED"
+
 time:
   - platform: homeassistant
     id: homeassistant_time
@@ -86,6 +91,11 @@ display:
       // Agenda
 
       std::string next_event = std::string(id(agenda_next_event).state.c_str());
+
+      if (next_event.size() > 0) {
+        next_event = next_event.substr(1);
+      }
+
       std::vector<std::string> lines;
 
       int cursor = 0;
