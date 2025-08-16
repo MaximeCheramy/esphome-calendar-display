@@ -21,9 +21,9 @@ font:
   - file: 'fonts/Verdana-Bold.ttf'
     id: big
     size: 12
-  - file: 'fonts/Tamzen6x12r.ttf'
+  - file: 'fonts/Tamzen7x14r.ttf'
     id: mono
-    size: 12
+    size: 14
     glyphsets:
       - GF_Latin_Core
   - file: 'fonts/Tamzen6x12b.ttf'
@@ -47,8 +47,10 @@ time:
 sensor:
   - platform: homeassistant
     id: temperature
-    entity_id: weather.escalquens
-    attribute: temperature
+    entity_id: sensor.indoor_outdoor_meter_367f_temperature
+
+bluetooth_proxy:
+  active: true
 
 text_sensor:
   - platform: homeassistant
@@ -75,7 +77,7 @@ display:
     spi_id: spi2
     lambda: |-
       // Max columns using mono font
-      int COLS = 48;
+      int COLS = 41;
 
       it.filled_rectangle(0, 0, 296, 18, COLOR_ON);
       //Date and Time
