@@ -35,9 +35,15 @@ font:
     id: small
     size: 10
 
-switch:
+output:
   - platform: gpio
     pin: GPIO03
+    id: led_output
+
+light:
+  - platform: binary
+    output: led_output
+    id: led
     name: "LED"
 
 time:
