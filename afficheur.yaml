@@ -46,6 +46,19 @@ light:
     id: led
     name: "LED"
 
+button:
+  - platform: template
+    name: "Blink LED"
+    on_press:
+      - repeat:
+          count: 3
+          then:
+            - light.turn_on: led
+            - delay: 300ms
+            - light.turn_off: led
+            - delay: 300ms
+    id: blink_led_button
+
 time:
   - platform: homeassistant
     id: homeassistant_time
